@@ -4,25 +4,25 @@ const LitElement = Object.getPrototypeOf(
 const html = LitElement.prototype.html;
 
 const keys = {
-    "power": {"key": "KEY_POWER", "icon": "mdi:power"},
-    "volume_up": {"key": "KEY_VOLUP", "icon": "mdi:volume-plus"},
-    "volume_down": {"key": "KEY_VOLDOWN", "icon": "mdi:volume-minus"},
-    "volume_mute": {"key": "KEY_MUTE", "icon": "mdi:volume-mute"},
-    "return": {"key": "KEY_RETURN", "icon": "mdi:arrow-left"},
-    "source": {"key": "KEY_SOURCE", "icon": "mdi:video-input-hdmi"},
+    "power": {"key": "TvPower", "icon": "mdi:power"},
+    "volume_up": {"key": "VolumeDown", "icon": "mdi:volume-plus"},
+    "volume_down": {"key": "VolumeUp", "icon": "mdi:volume-minus"},
+    "volume_mute": {"key": "Mute", "icon": "mdi:volume-mute"},
+    "return": {"key": "Return", "icon": "mdi:arrow-left"},
+    "source": {"key": "Input", "icon": "mdi:video-input-hdmi"},
     "info": {"key": "KEY_INFO", "icon": "mdi:television-guide"},
-    "home": {"key": "KEY_HOME", "icon": "mdi:home"},
+    "home": {"key": "Home", "icon": "mdi:home"},
     "channel_up": {"key": "KEY_CHUP", "icon": "mdi:arrow-up"},
     "channel_down": {"key": "KEY_CHDOWN", "icon": "mdi:arrow-down"},
-    "up": {"key": "KEY_UP", "icon": "mdi:chevron-up"},
-    "left": {"key": "KEY_LEFT", "icon": "mdi:chevron-left"},
-    "enter": {"key": "KEY_ENTER", "icon": "mdi:checkbox-blank-circle"},
-    "right": {"key": "KEY_RIGHT", "icon": "mdi:chevron-right"},
-    "down": {"key": "KEY_DOWN", "icon": "mdi:chevron-down"},
-    "rewind": {"key": "KEY_REWIND", "icon": "mdi:rewind"},
-    "play": {"key": "KEY_PLAY", "icon": "mdi:play"},
-    "pause": {"key": "KEY_PAUSE", "icon": "mdi:pause"},
-    "fast_forward": {"key": "KEY_FF", "icon": "mdi:fast-forward"},
+    "up": {"key": "Up", "icon": "mdi:chevron-up"},
+    "left": {"key": "Left", "icon": "mdi:chevron-left"},
+    "enter": {"key": "Confirm", "icon": "mdi:checkbox-blank-circle"},
+    "right": {"key": "Right", "icon": "mdi:chevron-right"},
+    "down": {"key": "Down", "icon": "mdi:chevron-down"},
+    "rewind": {"key": "Rewind", "icon": "mdi:rewind"},
+    "play": {"key": "Play", "icon": "mdi:play"},
+    "pause": {"key": "Pause", "icon": "mdi:pause"},
+    "fast_forward": {"key": "Forward", "icon": "mdi:fast-forward"},
 };
 
 const sources = {
@@ -151,9 +151,9 @@ class TVCardServices extends LitElement {
     sendKey(key) {
         let entity_id = this._config.entity;
 
-        this._hass.callService("media_player", "play_media", {
-            media_content_id: key,
-            media_content_type: "send_key",
+        this._hass.callService("remote", "send_command", {
+            command: key,
+            delay_secs: 0.3,
         }, { entity_id: entity_id });
     }
 
@@ -169,7 +169,7 @@ class TVCardServices extends LitElement {
     onClick(event) {
         event.stopImmediatePropagation();
         let click_action = () => {
-            this.sendKey("KEY_ENTER");
+            this.sendKey("Confirm");
             if (this._config.enable_button_feedback === undefined || this._config.enable_button_feedback) fireEvent(window, "haptic", "light");
         };
         if (this._config.enable_double_click) {
@@ -187,14 +187,14 @@ class TVCardServices extends LitElement {
         clearTimeout(this.timer);
         this.timer = null;
 
-        this.sendKey(this._config.double_click_keycode ? this._config.double_click_keycode : "KEY_RETURN");
+        this.sendKey(this._config.double_click_keycode ? this._config.double_click_keycode : "Return");
         if (this._config.enable_button_feedback === undefined || this._config.enable_button_feedback) fireEvent(window, "haptic", "success");
     }
 
     onTouchStart(event) {
         event.stopImmediatePropagation();
 
-        this.holdaction = "KEY_ENTER";
+        this.holdaction = "Confirm";
         this.holdtimer = setTimeout(() => {
             //hold
             this.holdinterval = setInterval(() => {
@@ -230,12 +230,12 @@ class TVCardServices extends LitElement {
 
         if (Math.abs(diffX) > Math.abs(diffY)) {
             // sliding horizontally
-            let key = diffX > 0 ? "KEY_LEFT" : "KEY_RIGHT";
+            let key = diffX > 0 ? "Left" : "Right";
             this.holdaction = key;
             this.sendKey(key);
         } else {
             // sliding vertically
-            let key = diffY > 0 ? "KEY_UP" : "KEY_DOWN";
+            let key = diffY > 0 ? "Up" : "Down";
             this.holdaction = key;
             this.sendKey(key);
         }
